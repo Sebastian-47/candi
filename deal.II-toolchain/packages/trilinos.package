@@ -70,12 +70,15 @@ INSTALL_PATH=${INSTALL_PATH}/${NAME}
 
 #########################################################################
 # If you have further options for trilinos, please set:
-TRILINOS_CONFOPTS=" \
-        -D TPL_ENABLE_MUMPS:BOOL=ON \
+TRILINOS_CONFOPTS="                     \
+        -D TPL_ENABLE_MUMPS:BOOL=ON     \
         -D TPL_ENABLE_SCALAPACK:BOOL=ON \
-        -D SCALAPACK_LIBRARY_DIRS:PATH=/home/ifam/kinnewig/Software/scalapack-2.1.0/lib \
-        -D MUMPS_INCLUDE_DIRS:FILEPATH="/home/ifam/kinnewig/Software/mumps-5.3.3/include" \
-        -D MUMPS_LIBRARY_DIRS:FILEPATH="/home/ifam/kinnewig/Software/mumps-5.3.3/lib" "
+        -D Trilinos_ENABLE_Kokkos=ON"
+
+        # needed for installation on IfAM mashines:
+        # -D SCALAPACK_LIBRARY_DIRS:PATH=/home/ifam/kinnewig/Software/scalapack-2.1.0/lib   \
+        # -D MUMPS_INCLUDE_DIRS:FILEPATH="/home/ifam/kinnewig/Software/mumps-5.3.3/include" \
+        # -D MUMPS_LIBRARY_DIRS:FILEPATH="/home/ifam/kinnewig/Software/mumps-5.3.3/lib" 
 
 #########################################################################
 # Please do not change the following options
@@ -192,7 +195,7 @@ CONFOPTS="-D TPL_ENABLE_MPI:BOOL=ON                         \
           -D Trilinos_ENABLE_Epetra=ON                      \
           -D Trilinos_ENABLE_EpetraExt=ON                   \
           -D Trilinos_ENABLE_Ifpack=ON                      \
-          -D Trilinos_ENABLE_Ifpack2=OFF                    \
+          -D Trilinos_ENABLE_Ifpack2=ON                     \
           -D Trilinos_ENABLE_Tpetra=ON                      \
           -D   Tpetra_INST_DOUBLE=ON                        \
           -D   Tpetra_INST_INT_LONG=ON                      \
@@ -207,6 +210,10 @@ CONFOPTS="-D TPL_ENABLE_MPI:BOOL=ON                         \
           -D   Teuchos_ENABLE_FLOAT:BOOL=ON                 \
           -D Trilinos_ENABLE_MueLu=ON                       \
           -D Trilinos_ENABLE_MueLu:BOOL=ON                  \
+          -D   MueLu_ENABLE_TESTS:STRING=ON                 \
+          -D   MueLu_ENABLE_EXAMPLES:STRING=ON              \
+          -D   MueLu_ENABLE_Kokkos_Refactor:STRING=ON       \
+          -D   MueLu_ENABLE_Kokkos_Refactor_Use_By_Default:STRING=ON \
           -D Trilinos_ENABLE_ML=ON                          \
           -D Trilinos_ENABLE_ROL=ON                         \
           -D Trilinos_ENABLE_Zoltan=ON                      \
