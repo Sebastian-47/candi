@@ -17,18 +17,11 @@ if [ ${TRILINOS_MAJOR_VERSION} = "DEV" ];then
     SOURCE=https://github.com/trilinos/
 
 
-elif [ ${TRILINOS_MAJOR_VERSION} = "MASTER" ]; then
-    VERSION=master
-    SOURCE=https://github.com/trilinos/Trilinos/archive/
-    NAME=${VERSION}
-    EXTRACTSTO=Trilinos-${VERSION}
-    PACKING=.tar.gz
-
-
 elif [ ${TRILINOS_MAJOR_VERSION} = "12" ]; then
     VERSION=12-18-1
     #CHECKSUM=9c1d151169949bca6cf203831e4d6aee
-    CHECKSUM=0b2447248952f4f1f4d9e1577e8b3651 # two minor changes in Trilinos
+    CHECKSUM=718393fd0b8c7b3efd9b46274dc9e292 # two minor changes in Trilinos
+
 
     #VERSION=12-14-1
     #CHECKSUM=de912cca43c2ca3b74aa08528ac39dbd
@@ -53,32 +46,29 @@ INSTALL_PATH=${INSTALL_PATH}/${NAME}
 #########################################################################
 # If you have further options for trilinos, please set:
 TRILINOS_CONFOPTS="                                                                    \
+        -D TPL_ENABLE_BOOST=ON                                                         \
         -D TPL_ENABLE_MUMPS=ON                                                         \
-        -D Trilinos_ENABLE_MUMPS=ON                                                    \
-          -D MUMPS_INCLUDE_DIRS="/home/ifam/kinnewig/Software/mumps-5.3.3/include"     \
-          -D MUMPS_LIBRARY_DIRS="/home/ifam/kinnewig/Software/mumps-5.3.3/lib"         \
+          -D MUMPS_INCLUDE_DIRS="/home/sebastian/Software/mumps-5.2.1/include"         \
+          -D MUMPS_LIBRARY_DIRS="/home/sebastian/Software/mumps-5.2.1/lib"             \
         -D TPL_ENABLE_SCALAPACK=ON                                                     \
-          -D SCALAPACK_LIBRARY_DIRS="/home/ifam/kinnewig/Software/scalapack-2.1.0/lib" \
+          -D SCALAPACK_LIBRARY_DIRS="/home/sebastian/Software/scalapack-2.1.0/lib"     \
         -D Trilinos_ENABLE_Kokkos=ON                                                   \
           -D Kokkos_ARCH_HOSTARCH=yes                                                  \
           -D KOKKOS_ARCH=SKX                                                           \
           -D Kokkos_ARCH_SKX=ON                                                        \
           -D Kokkos_ENABLE_OPENMP=ON                                                   \
           -D Kokkos_ENABLE_HPX=ON                                                      \
-            -D HPX_INCLUDE_DIRS="/home/ifam/kinnewig/Software/hpx/hpx/include"         \
-            -D HPX_LIBRARY_DIRS="/home/ifam/kinnewig/Software/hpx/hpx/lib"             \
+            -D HPX_INCLUDE_DIRS="/home/sebastian/Software/hpx/hpx/include"             \
+            -D HPX_LIBRARY_DIRS="/home/sebastian/Software/hpx/hpx/lib"                 \
         -D TPL_ENABLE_HWLOC=ON                                                         \
-          -D HWLOC_INCLUDE_DIRS=/home/ifam/kinnewig/Software/hpx/hwloc/include"        \
-          -D HWLOC_LIBRARY_DIRS=/home/ifam/kinnewig/Software/hpx/hwloc/lib"            \
+          -D HWLOC_INCLUDE_DIRS="/home/sebastian/Software/hpx/hwloc/include"           \
+          -D HWLOC_LIBRARY_DIRS="/home/sebastian/Software/hpx/hwloc/lib"               \
         -D TPL_ENABLE_PThread=ON"
       
 
         # needed for installation on IfAM mashines:
         #-D Trilinos_ENABLE_KokkosCore:BOOL=ON                                          \
         #-D Trilinos_ENABLE_KokkosAlgorithms:BOOL=ON                                    \
-        #-D TPL_ENABLE_BOOST=ON                                                         \
-        #  -D TPL_BOOST_INCLUDE_DIRS="/opt/ifam/10.1.0-V1/lib64/boost-1.73.0/include"   \
-        #  -D TPL_BOOST_LIBRARY_DIRS="/opt/ifam/10.1.0-V1/lib64/boost-1.73.0/lib"       \
 
 #########################################################################
 # Please do not change the following options
