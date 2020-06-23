@@ -15,6 +15,16 @@ if [ ${TRILINOS_MAJOR_VERSION} = "DEV" ];then
     NAME=Trilinos.git
     PACKING=git
     SOURCE=https://github.com/trilinos/
+
+
+elif [ ${TRILINOS_MAJOR_VERSION} = "MASTER" ]; then
+    VERSION=master
+    SOURCE=https://github.com/trilinos/Trilinos/archive/
+    NAME=${VERSION}
+    EXTRACTSTO=Trilinos-${VERSION}
+    PACKING=.tar.gz
+
+
 elif [ ${TRILINOS_MAJOR_VERSION} = "12" ]; then
     VERSION=12-18-1
     #CHECKSUM=9c1d151169949bca6cf203831e4d6aee
@@ -25,34 +35,6 @@ elif [ ${TRILINOS_MAJOR_VERSION} = "12" ]; then
 
     #VERSION=12-12-1
     #CHECKSUM=ecd4606fa332212433c98bf950a69cc7
-
-
-    # note: the official trilinos tarball changed md5sum but we confirmed that the contents is
-    # identical. We accept both hashes here.
-    #VERSION=12-10-1
-    #CHECKSUM="667333dbd7c0f031d47d7c5511fd0810 40f28628b63310f9bd17c26d9ebe32b1"
-    
-    #VERSION=12-4-2
-    #CHECKSUM=4c25a757d86bde3531090bd900a2cea8
-
-    SOURCE=https://github.com/trilinos/Trilinos/archive/
-    NAME=trilinos-release-${VERSION}
-    EXTRACTSTO=Trilinos-trilinos-release-${VERSION}
-    PACKING=.tar.gz
-
-elif [ ${TRILINOS_MAJOR_VERSION} = "11" ]; then
-    VERSION=11-14-3
-    CHECKSUM=dea62e57ebe51a886bee0b10a2176969
-    
-    #Note: For Trilinos v11 we need to force SuperLUDist=OFF,
-    #      since only the deprecated SuperLUDist v3.3 together with an Amesos patch
-    #      (and not the current SuperLUDist v4.x with the same Amesos patch)
-    #      is working.
-    #Note: This issue is resolved by setting
-    #          -D HAVE_SUPERLUDIST_LUSTRUCTINIT_2ARG
-    #      for Trilinos v12; this is neglegted by Trilinos v11 since it is unknown.
-    cecho ${BAD} "trilinos: warning: forcing unset SUPERLU_DIR (not supported)"
-    unset SUPERLU_DIR
 
     SOURCE=https://github.com/trilinos/Trilinos/archive/
     NAME=trilinos-release-${VERSION}
@@ -70,15 +52,33 @@ INSTALL_PATH=${INSTALL_PATH}/${NAME}
 
 #########################################################################
 # If you have further options for trilinos, please set:
-TRILINOS_CONFOPTS="                     \
-        -D TPL_ENABLE_MUMPS:BOOL=ON     \
-        -D TPL_ENABLE_SCALAPACK:BOOL=ON \
-        -D Trilinos_ENABLE_Kokkos=ON"
+TRILINOS_CONFOPTS="                                                                    \
+        -D TPL_ENABLE_MUMPS=ON                                                         \
+        -D Trilinos_ENABLE_MUMPS=ON                                                    \
+          -D MUMPS_INCLUDE_DIRS="/home/ifam/kinnewig/Software/mumps-5.3.3/include"     \
+          -D MUMPS_LIBRARY_DIRS="/home/ifam/kinnewig/Software/mumps-5.3.3/lib"         \
+        -D TPL_ENABLE_SCALAPACK=ON                                                     \
+          -D SCALAPACK_LIBRARY_DIRS="/home/ifam/kinnewig/Software/scalapack-2.1.0/lib" \
+        -D Trilinos_ENABLE_Kokkos=ON                                                   \
+          -D Kokkos_ARCH_HOSTARCH=yes                                                  \
+          -D KOKKOS_ARCH=SKX                                                           \
+          -D Kokkos_ARCH_SKX=ON                                                        \
+          -D Kokkos_ENABLE_OPENMP=ON                                                   \
+          -D Kokkos_ENABLE_HPX=ON                                                      \
+            -D HPX_INCLUDE_DIRS="/home/ifam/kinnewig/Software/hpx/hpx/include"         \
+            -D HPX_LIBRARY_DIRS="/home/ifam/kinnewig/Software/hpx/hpx/lib"             \
+        -D TPL_ENABLE_HWLOC=ON                                                         \
+          -D HWLOC_INCLUDE_DIRS=/home/ifam/kinnewig/Software/hpx/hwloc/include"        \
+          -D HWLOC_LIBRARY_DIRS=/home/ifam/kinnewig/Software/hpx/hwloc/lib"            \
+        -D TPL_ENABLE_PThread=ON"
+      
 
         # needed for installation on IfAM mashines:
-        # -D SCALAPACK_LIBRARY_DIRS:PATH=/home/ifam/kinnewig/Software/scalapack-2.1.0/lib   \
-        # -D MUMPS_INCLUDE_DIRS:FILEPATH="/home/ifam/kinnewig/Software/mumps-5.3.3/include" \
-        # -D MUMPS_LIBRARY_DIRS:FILEPATH="/home/ifam/kinnewig/Software/mumps-5.3.3/lib" 
+        #-D Trilinos_ENABLE_KokkosCore:BOOL=ON                                          \
+        #-D Trilinos_ENABLE_KokkosAlgorithms:BOOL=ON                                    \
+        #-D TPL_ENABLE_BOOST=ON                                                         \
+        #  -D TPL_BOOST_INCLUDE_DIRS="/opt/ifam/10.1.0-V1/lib64/boost-1.73.0/include"   \
+        #  -D TPL_BOOST_LIBRARY_DIRS="/opt/ifam/10.1.0-V1/lib64/boost-1.73.0/lib"       \
 
 #########################################################################
 # Please do not change the following options
@@ -187,10 +187,10 @@ fi
 #########################################################################
 # General Trilinos configuration
 
-CONFOPTS="-D TPL_ENABLE_MPI:BOOL=ON                         \
-          -D Trilinos_ENABLE_OpenMP:BOOL=OFF                \
-          -D TPL_ENABLE_TBB:BOOL=OFF                        \
-          -D Trilinos_VERBOSE_CONFIGURE:BOOL=FALSE          \
+CONFOPTS="-D TPL_ENABLE_MPI=ON                              \
+          -D Trilinos_ENABLE_OpenMP=OFF                     \
+          -D TPL_ENABLE_TBB=OFF                             \
+          -D Trilinos_VERBOSE_CONFIGURE=FALSE               \
           -D Trilinos_ENABLE_Amesos=ON                      \
           -D Trilinos_ENABLE_Epetra=ON                      \
           -D Trilinos_ENABLE_EpetraExt=ON                   \
@@ -215,15 +215,15 @@ CONFOPTS="-D TPL_ENABLE_MPI:BOOL=ON                         \
           -D Trilinos_ENABLE_ML=ON                          \
           -D Trilinos_ENABLE_ROL=ON                         \
           -D Trilinos_ENABLE_Zoltan=ON                      \
-          -D Trilinos_ENABLE_Stratimikos:BOOL=ON            \
+          -D Trilinos_ENABLE_Stratimikos=ON                 \
           -D TPL_ENABLE_Boost=OFF                           \
-          -D Trilinos_ENABLE_Belos:BOOL=ON                  \
-          -D Trilinos_ENABLE_Amesos2:BOOL=OFF               \
+          -D Trilinos_ENABLE_Belos=ON                       \
+          -D Trilinos_ENABLE_Amesos2=ON                     \
           -D CMAKE_BUILD_TYPE:STRING=RELEASE                \
           -D CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE              \
           -D BUILD_SHARED_LIBS:BOOL=ON                      \
-          ${CONFOPTS}                                       \
-          ${TRILINOS_CONFOPTS}"
+          ${TRILINOS_CONFOPTS}                              \
+          ${CONFOPTS}"                                       
 
 package_specific_register () {
     export TRILINOS_DIR=${INSTALL_PATH}
