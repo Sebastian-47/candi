@@ -26,11 +26,16 @@ CONFOPTS=" \
 -D DEAL_II_FORCE_BUNDLED_UMFPACK:BOOL=OFF \
 -D DEAL_II_WITH_BOOST:BOOL=ON \
 -D DEAL_II_FORCE_BUNDLED_BOOST:BOOL=OFF \
--D DEAL_II_WITH_ZLIB:BOOL=ON"
+-D DEAL_II_WITH_ZLIB:BOOL=ON \
+-D DEAL_II_CXX_FLAGS='-fopenmp' \
+-D DEAL_II_CXX_FLAGS_DEBUG='-fopenmp' \
+-D DEAL_II_CXX_FLAGS_RELEASE='-fopenmp' \
+-D DEAL_II_LINKER_FLAGS='-fopenmp' \
+-D CMAKE_CXX_FLAGS='-march=native -fopenmp'"
 
 if [ "${NATIVE_OPTIMIZATIONS}" = "true" ]; then
-    CONFOPTS="${CONFOPTS} \
-      -D CMAKE_CXX_FLAGS='-march=native'"
+ #   CONFOPTS="${CONFOPTS} \
+ #     -D CMAKE_CXX_FLAGS='-march=native -fopenmp'"
 fi
 
 # add the user-specified flags at the end (so things can be overriden):
