@@ -30,12 +30,11 @@ CONFOPTS=" \
 -D DEAL_II_CXX_FLAGS='-fopenmp' \
 -D DEAL_II_CXX_FLAGS_DEBUG='-fopenmp' \
 -D DEAL_II_CXX_FLAGS_RELEASE='-fopenmp' \
--D DEAL_II_LINKER_FLAGS='-fopenmp' \
--D CMAKE_CXX_FLAGS='-march=native -fopenmp'"
+-D DEAL_II_LINKER_FLAGS='-fopenmp' "
 
 if [ "${NATIVE_OPTIMIZATIONS}" = "true" ]; then
- #   CONFOPTS="${CONFOPTS} \
- #     -D CMAKE_CXX_FLAGS='-march=native -fopenmp'"
+    CONFOPTS="${CONFOPTS} \
+      -D CMAKE_CXX_FLAGS='-march=native -fopenmp'"
 fi
 
 # add the user-specified flags at the end (so things can be overriden):
