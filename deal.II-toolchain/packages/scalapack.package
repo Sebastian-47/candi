@@ -21,13 +21,15 @@ INSTALL_PATH=${INSTALL_PATH}/scalapack-${VERSION}
 
 # Set compilers & compiler options
 CONFOPTS="${CONFOPTS} \
-    -D CMAKE_C_COMPILER=mpicc \
-    -D CMAKE_Fortran_COMPILER=mpif90"
+    -D CMAKE_C_COMPILER=${MPI_C} \
+    -D CMAKE_Fortran_COMPILER=${MPI_FORT}"
+
+export FFLAGS="-fallow-argument-mismatch"
 
 CONFOPTS="\
     ${CONFOPTS} \
-      -D CMAKE_C_FLAGS:STRING="-march=native -lalm -lm -ffastmath -lamd_memcpy -fpic" \
-      -D CMAKE_Fortran_FLAGS:STRING="-march=native -lalm -lm -ffastmath -lamd_memcpy -fpic" \
+      -D CMAKE_C_FLAGS="-march=native -lalm -lm -ffastmath -lamd_memcpy -fpic" \
+      -D CMAKE_Fortran_FLAGS="-fallow-argument-mismatch -march=native -lalm -lm -ffastmath -lamd_memcpy -fpic" \
       -D CMAKE_C_STANDARD_LIBRARIES="-l ${AOCL_LIBM_ROOT}/lib/libalm.so -l ${AOCL_MEMORY_ROOT}/lib/libamd_memcpy.so" \
       -D CMAKE_Fortran_STANDARD_LIBRARIES="-l ${AOCL_LIBM_ROOT}/lib/libalm.so -l ${AOCL_MEMORY_ROOT}/lib/libamd_memcpy.so""
 

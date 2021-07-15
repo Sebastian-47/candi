@@ -19,15 +19,16 @@ package_specific_build () {
     cd ${BUILDDIR}
     cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
 
-    export FLIBS="-lflang -fpic"
+    echo "install to: ${INSTALL_PATH}"
 
-    ./configure --enable-lapack2flame --enable-external-lapack-interfaces --enable-dynamic-build --enable-max-arg-list-hack --enable-f2c-dotc --prefix=${INSTALL_PATH}
+    export FLIBS="-lflang -fPIC"
+    ./configure --prefix=${INSTALL_PATH} --enable-lapack2flame --enable-external-lapack-interfaces --enable-dynamic-build --enable-max-arg-list-hack --enable-f2c-dotc 
     quit_if_fail "configure failed"
 
     make -j ${JOBS} 
     quit_if_fail "make failed"
 
-    make install -j ${JOBS} 
+    make install 
     quit_if_fail "make install failed"
 }
 

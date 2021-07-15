@@ -3,7 +3,7 @@
 ################################################################################
 
 VERSION=3.0.1
-CHECKSUM=7eb0cea7710fd8d22b8cd9d8a04c1b24
+CHECKSUM=f6e2934bbd9813e821c02ff59a041373
 
 NAME=blis-${VERSION}
 USE_VERSION=true

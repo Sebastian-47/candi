@@ -26,12 +26,41 @@ elif [ ${TRILINOS_MAJOR_VERSION} = "12" ]; then
     # VERSION=12-14-1
     # CHECKSUM=de912cca43c2ca3b74aa08528ac39dbd
 
+    # VERSION=12-12-1
+    # CHECKSUM=ecd4606fa332212433c98bf950a69cc7
+
+
+    # note: the official trilinos tarball changed md5sum but we confirmed that the contents is
+    # identical. We accept both hashes here.
+    # VERSION=12-10-1
+    # CHECKSUM="667333dbd7c0f031d47d7c5511fd0810 40f28628b63310f9bd17c26d9ebe32b1"
+    
+    # VERSION=12-4-2
+    # CHECKSUM=4c25a757d86bde3531090bd900a2cea8
+
     SOURCE=https://github.com/trilinos/Trilinos/archive/
     NAME=trilinos-release-${VERSION}
-    USE_VERSION=false
     EXTRACTSTO=Trilinos-trilinos-release-${VERSION}
     PACKING=.tar.gz
 
+elif [ ${TRILINOS_MAJOR_VERSION} = "11" ]; then
+    VERSION=11-14-3
+    CHECKSUM=dea62e57ebe51a886bee0b10a2176969
+    
+    #Note: For Trilinos v11 we need to force SuperLUDist=OFF,
+    #      since only the deprecated SuperLUDist v3.3 together with an Amesos patch
+    #      (and not the current SuperLUDist v4.x with the same Amesos patch)
+    #      is working.
+    #Note: This issue is resolved by setting
+    #          -D HAVE_SUPERLUDIST_LUSTRUCTINIT_2ARG
+    #      for Trilinos v12; this is neglegted by Trilinos v11 since it is unknown.
+    cecho ${BAD} "trilinos: warning: forcing unset SUPERLU_DIR (not supported)"
+    unset SUPERLU_DIR
+
+    SOURCE=https://github.com/trilinos/Trilinos/archive/
+    NAME=trilinos-release-${VERSION}
+    EXTRACTSTO=Trilinos-trilinos-release-${VERSION}
+    PACKING=.tar.gz
 else
     cecho ${BAD} "Unknown Trilinos version ${TRILINOS_MAJOR_VERSION} forced, please use AUTO|12|11."
     exit
@@ -55,10 +84,18 @@ if [ ! -z "${BLAS_DIR}" ]; then
       -D BLAS_LIBRARY_DIRS:STRING=${BLAS_DIR}"
 fi
 
-if [ ! -z "${LIBFLAME_LAPACK_DIR}" ]; then
-    cecho ${INFO} "trilinos: configuration with LIBFLAME_LAPACK_DIR=${LIBFLAME_LAPACK_DIR}"
+if [ ! -z "${LAPACK_DIR}" ]; then
+    cecho ${INFO} "trilinos: configuration with LAPACK_DIR=${LAPACK_DIR}"
     CONFOPTS="${CONFOPTS} \
-      -D LAPACK_LIBRARY_DIRS:STRING=${LIBFLAME_LAPACK_DIR}"
+      -D LAPACK_LIBRARY_DIRS:STRING=${LAPACK_DIR}"
+fi
+
+if [ ! -z "${SCALAPACK_DIR}" ]; then
+    cecho ${INFO} "trilinos: configuration with SCALAPACK_DIR=${SCALAPACK_DIR}"
+    CONFOPTS="\
+        ${CONFOPTS} \
+        -D TPL_ENABLE_SCALAPACK:BOOL=ON \
+        -D SCALAPACK_LIBRARY_DIRS=${SCALAPACK_DIR}/lib"
 fi
 
 if [ ! -z "${MUMPS_DIR}" ]; then
@@ -70,21 +107,13 @@ if [ ! -z "${MUMPS_DIR}" ]; then
       -D MUMPS_LIBRARY_DIRS:STRING=${MUMPS_DIR}/lib"
 fi
 
-if [ ! -z "${SCALAPACK_DIR}" ]; then
-    cecho ${INFO} "trilinos: configuration with SCALAPACK_DIR=${SCALAPACK_DIR}"
-    CONFOPTS="\
-        ${CONFOPTS} \
-        -D TPL_ENABLE_SCALAPACK:BOOL=ON \
-        -D SCALAPACK_LIBRARY_DIRS=${SCALAPACK_DIR}/lib"
-fi
-
 # Set intel MKL options
 if [ "${MKL}" = "ON" ]; then
     cecho ${INFO} "trilinos: configuration with MKL"
 
-    if [ -z "${BLAS_DIR}" ] && [ -z "${LIBFLAME_LAPACK_DIR}" ]; then
+    if [ -z "${BLAS_DIR}" ] && [ -z "${LAPACK_DIR}" ]; then
         cecho ${INFO} "trilinos: configuration with BLAS_DIR=${MKL_DIR}"
-        cecho ${INFO} "trilinos: configuration with LIBFLAME_LAPACK_DIR=${MKL_DIR}"
+        cecho ${INFO} "trilinos: configuration with LAPACK_DIR=${MKL_DIR}"
         CONFOPTS="${CONFOPTS} \
           -D BLAS_LIBRARY_DIRS:STRING=${MKL_DIR} \
           -D LAPACK_LIBRARY_DIRS:STRING=${MKL_DIR}"
@@ -110,19 +139,29 @@ else
 fi
 
 # Set compilers & compiler options
-CONFOPTS="${CONFOPTS} \
-  -D CMAKE_C_COMPILER=${MPI_C} \
-  -D CMAKE_CXX_COMPILER=${MPI_CXX} \
-  -D CMAKE_Fortran_COMPILER=${MPI_FORT}"
+if [ ! -z "${CC}" ]; then
+    CONFOPTS="${CONFOPTS} \
+      -D CMAKE_C_COMPILER=${CC}"
+fi
+
+if [ ! -z "${CXX}" ]; then
+    CONFOPTS="${CONFOPTS} \
+      -D CMAKE_CXX_COMPILER=${CXX}"
+fi
+
+if [ ! -z "${FC}" ]; then
+    CONFOPTS="${CONFOPTS} \
+      -D CMAKE_Fortran_COMPILER=${FC}"
+fi
 
 CONFOPTS="${CONFOPTS} \
-  -D CMAKE_CXX_FLAGS:STRING="-lalm -lm -ffastmath -lamd_memcpy -fPIC -g -O3" \
-  -D CMAKE_C_FLAGS:STRING="-lm -ffastmath -lamd_memcpy -fPIC -g -O3" \
-  -D CMAKE_FORTRAN_FLAGS:STRING="-lalm -lm -ffastmath -lamd_memcpy -g -O3" \
+  -D CMAKE_CXX_FLAGS:STRING="-march=native -lalm -lm -ffastmath -lamd_memcpy -fPIC -g -O3" \
+  -D CMAKE_C_FLAGS:STRING="-march=native -lm -ffastmath -lamd_memcpy -fPIC -g -O3" \
+  -D CMAKE_FORTRAN_FLAGS:STRING="-march=native -lalm -lm -ffastmath -lamd_memcpy -g -O3" \
   -D CMAKE_C_STANDARD_LIBRARIES="-l ${AOCL_LIBM_ROOT}/lib/libalm.so -l ${AOCL_MEMORY_ROOT}/lib/libamd_memcpy.so" \
   -D CMAKE_CXX_STANDARD_LIBRARIES="-l ${AOCL_LIBM_ROOT}/lib/libalm.so -l ${AOCL_MEMORY_ROOT}/lib/libamd_memcpy.so" \
   -D CMAKE_FORTRAN_STANDARD_LIBRARIES="-l ${AOCL_LIBM_ROOT}/lib/libalm.so -l ${AOCL_MEMORY_ROOT}/lib/libamd_memcpy.so" \
-  -D Trilinos_EXTRA_LINK_FLAGS:STRING='-l gfortran -l ${AOCL_LIBM_ROOT}/lib/libalm.so -l ${AOCL_MEMORY_ROOT}/lib/libamd_memcpy.so'"
+  -D Trilinos_EXTRA_LINK_FLAGS:STRING='-lgfortran'"
 
 # Add ParMETIS, if present
 if [ ! -z "${PARMETIS_DIR}" ]; then
@@ -176,7 +215,7 @@ CONFOPTS="\
   -D Trilinos_ENABLE_Stratimikos:BOOL=ON \
   -D TPL_ENABLE_Boost:BOOL=OFF \
   -D Trilinos_ENABLE_Belos:BOOL=ON \
-  -D Trilinos_ENABLE_Amesos2:BOOL=OFF \
+  -D Trilinos_ENABLE_Amesos2:BOOL=ON \
   -D CMAKE_BUILD_TYPE:STRING=RELEASE \
   -D CMAKE_VERBOSE_MAKEFILE:BOOL=OFF \
   -D BUILD_SHARED_LIBS:BOOL=ON \
